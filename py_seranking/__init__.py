@@ -8,6 +8,7 @@ class SERanking(object):
     """
     Класс для работы с SERanking
     """
+    # Link to SERanking API
     MANAGEMENT_URL = "https://api4.seranking.com/"
     token = None
     now = str(datetime.datetime.now().date())
@@ -60,8 +61,7 @@ class SERanking(object):
         url = ''.join(url)
         headers = self.get_header
         response = requests.get(url, headers=headers)
-        result = pd.DataFrame(response.json())
-        return result
+        return response.json()
 
     def site_keywords(self, site_id):
         """
@@ -73,10 +73,25 @@ class SERanking(object):
         url = ''.join(url)
         headers = self.get_header
         response = requests.get(url, headers=headers)
-        result = pd.DataFrame(response.json())
-        return result
+        return response.json()
 
-    def keywords_statistics(self, site_id, date_from, date_to=now):
+    def keywords_statistics_json(self, site_id, date_from, date_to=now):
+        """
+        Выгрузка статистики по ключевым словам:
+        :param site_id: ID проекта
+        :param date_from: дата начала съема статистики
+        :param date_to: дата окончания съема статистики - по умолчанию сегодня
+        :return: json со статистикой по ключевым словам
+        """
+        url = [self.MANAGEMENT_URL, 'sites/', str(site_id),
+               '/positions?date_from=', date_from,
+               '&date_to=', date_to]
+        url = ''.join(url)
+        headers = self.get_header
+        response = requests.get(url, headers=headers)
+        return response.json()
+
+    def keywords_statistics_df(self, site_id, date_from, date_to=now):
         """
         Возвращает статистику по ключевым словам
         :param site_id: идентификатор сайта
@@ -100,7 +115,7 @@ class SERanking(object):
             result = result.append(cont)
         return result
 
-    def site_search_engines(self, site_id):
+    def site_search_engines_df(self, site_id):
         """
         :param site_id: идентификатор сайта
         :return: DataFrame с поисковыми системами сайта
